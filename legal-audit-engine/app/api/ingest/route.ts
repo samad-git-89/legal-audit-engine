@@ -3,8 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { put } from '@vercel/blob';
 import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
-// @ts-ignore
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
+import pdfParse from 'pdf-parse-fixed';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
