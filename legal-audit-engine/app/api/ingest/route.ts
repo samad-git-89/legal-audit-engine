@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
     // 4. Batch generate embeddings using Gemini
     const { embeddings } = await embedMany({
-      model: google.textEmbeddingModel('text-embedding-004'), {
+      model: google.textEmbeddingModel('text-embedding-004', {
         apiKey: apiKey,
       }),
       values: chunks,
