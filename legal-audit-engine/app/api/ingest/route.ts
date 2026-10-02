@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { put } from '@vercel/blob';
 import { embedMany } from 'ai';
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+// @ts-ignore
 import pdfParse from 'pdf-parse-fixed';
 
 const supabase = createClient(
@@ -10,7 +11,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+});
 
 function chunkText(text: string, chunkSize = 1000, overlap = 200): string[] {
   const chunks: string[] = [];
@@ -27,14 +30,17 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File;
-    const userId = formData.get('userId') as string || '00000000-0000-0000-0000-000000000000';
+    const userId = (formData.get('userId') as string) || '00000000-0000-0000-0000-000000000000';
 
     if (!file) {
       return NextResponse.json({ error: 'Missing PDF file' }, { status: 400 });
     }
 
-    // 1. Upload raw PDF to Vercel Blob Storage
-    const blob = await put(file.name, file, { access: 'private' });
+    // 1. Upload raw PDF to Vercel Blob Storage with suffix to allow duplicate names
+    const blob = await put(file.name, file, { 
+      access: 'private',
+      addRandomSuffix: true,
+    });
 
     // 2. Create parent record in audited_documents
     const { data: doc, error: docError } = await supabase
@@ -57,9 +63,7 @@ export async function POST(req: Request) {
 
     // 4. Batch generate embeddings using Gemini
     const { embeddings } = await embedMany({
-      model: google.textEmbeddingModel('text-embedding-004', {
-        apiKey: apiKey,
-      }),
+      model: google.textEmbeddingModel('text-embedding-004'),
       values: chunks,
     });
 
