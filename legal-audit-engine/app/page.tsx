@@ -27,6 +27,13 @@ export default function Home() {
       } else {
         setStatus(`Error: ${data.error}`);
       }
+      if (!res.ok) {
+        const errorText = await res.text();
+        if (res.status === 413 || errorText.includes('Request Entity Too Large')) {
+          throw new Error('File size too large for serverless execution. Please upload a smaller PDF (under 4.5MB).');
+        }
+        throw new Error(errorText || 'Failed to upload document');
+      }
     } catch (err: any) {
       setStatus(`Failed: ${err.message}`);
     } finally {
@@ -41,7 +48,7 @@ export default function Home() {
           Enterprise Document Audit Engine
         </h1>
         <p className="text-slate-400 mb-6 text-sm">
-          Upload legal contracts or regulatory PDFs to ingest into Supabase HNSW Vector Storage.
+          Upload legal contracts or regulatory PDFs to Database.
         </p>
 
         <div className="border-2 border-dashed border-slate-700 hover:border-indigo-500 transition-colors rounded-lg p-8 text-center cursor-pointer mb-6 bg-slate-950/50">

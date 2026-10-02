@@ -1,3 +1,5 @@
+export const maxDuration = 60; // Allows up to 60s execution time on Vercel
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { put } from '@vercel/blob';
