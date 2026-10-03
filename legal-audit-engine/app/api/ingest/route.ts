@@ -63,9 +63,11 @@ export async function POST(req: Request) {
     const pdfData = await pdfParse(Buffer.from(arrayBuffer));
     const chunks = chunkText(pdfData.text);
 
-    // 4. Batch generate embeddings using Gemini
+    // 4. Batch generate embeddings using Gemini (explicit model string or standard provider model)
     const { embeddings } = await embedMany({
-      model: google.textEmbeddingModel('text-embedding-004'),
+      model: google.textEmbeddingModel('text-embedding-004', {
+        // Optional config if needed
+      }),
       values: chunks,
     });
 
