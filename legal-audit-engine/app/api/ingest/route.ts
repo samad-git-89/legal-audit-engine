@@ -25,7 +25,7 @@ function chunkText(text: string, chunkSize = 1000, overlap = 200): string[] {
   return chunks;
 }
 
-// Direct batch embedding call to Google Generative AI REST API
+// Batch embedding call using the correct Google v1beta endpoint
 async function getGeminiEmbeddings(chunks: string[], key: string): Promise<number[][]> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents?key=${key}`;
   
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No text extracted from PDF' }, { status: 400 });
     }
 
-    // 4. Batch generate embeddings directly via Gemini REST API
+    // 4. Batch generate embeddings
     const embeddings = await getGeminiEmbeddings(chunks, apiKey);
 
     // 5. Prepare rows for bulk insertion
